@@ -2,10 +2,14 @@ package cn.ac.iscas.nfs.ztboa;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -68,6 +72,8 @@ public class SplashActivity extends AppCompatActivity {
                 permissionInfo += "Manifest.permission.READ_PHONE_STATE Deny \n";
             }
 
+
+
             if (permissions.size() > 0) {
                 requestPermissions(permissions.toArray(new String[permissions.size()]), SDK_PERMISSION_REQUEST);
             }
@@ -128,6 +134,24 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+            String packageName = getApplication().getPackageName();
+            boolean isIgnoring = ((PowerManager) getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(packageName);
+            Log.e("111","eeeeeeeeeeeeeeeee");
+            Log.e("111",packageName);
+            if (!isIgnoring) {
+                Intent intent = new Intent(
+                        Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                try {
+                    startActivity(intent);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
 
         getPersimmions();
         if (hasPermission()){

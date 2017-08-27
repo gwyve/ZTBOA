@@ -158,11 +158,13 @@ public class LocationActivity extends AppCompatActivity {
 
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @TargetApi(Build.VERSION_CODES.M)
     private void startAlarmmanager(long stopInterval){
         if (alarmManager!=null && pendingIntent!=null){
-            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.KITKAT){
-                alarmManager.setWindow(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,0,pendingIntent);
+            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+//                alarmManager.setWindow(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,0,pendingIntent);
+//                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
             }else {
                 Log.e("111","wwweeeeeeeeeeeeeeeeeeeee");
                 alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),stopInterval*1000,pendingIntent);
@@ -183,7 +185,7 @@ public class LocationActivity extends AppCompatActivity {
             if (intent.getAction().equals("cn.ac.iscas.nfs.ztboa")){
                 Log.e("111","wwwwwwwwwwwwwaaaaaaaa");
 
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.KITKAT){
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
                         Log.e("111",""+stopInterval);
                         if (serviceIntent!=null && locUpServiceConn!=null){
                             startService(serviceIntent);
