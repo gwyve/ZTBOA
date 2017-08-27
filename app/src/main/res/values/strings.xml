@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">自动打卡</string>
+
+    <string name="startlocation">开始定位</string>
+    <string name="stoplocation">停止定位</string>
+    <string name="title_activity_location">LocationActivity</string>
+
+</resources>
