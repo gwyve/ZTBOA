@@ -68,9 +68,6 @@ public class LocationActivity extends AppCompatActivity {
     private TextView textView;
     Bundle bundle;
 
-//  距离中心位置的距离
-    private double distance = Long.MAX_VALUE;
-    private int count = 0;
 
 //  服务绑定
     LocUpServiceConn locUpServiceConn;
@@ -78,9 +75,9 @@ public class LocationActivity extends AppCompatActivity {
 
     Intent serviceIntent;
 
-    Intent alarmIntent;
-    AlarmManager alarmManager;
-    PendingIntent pendingIntent;
+//    Intent alarmIntent;
+//    AlarmManager alarmManager;
+//    PendingIntent pendingIntent;
 
 
     @Override
@@ -88,10 +85,10 @@ public class LocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
 
-        AlarmReceiver alarmReceiver = new AlarmReceiver();
-        IntentFilter intentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa");
-        intentFilter.setPriority(1000);
-        registerReceiver(alarmReceiver,intentFilter);
+//        AlarmReceiver alarmReceiver = new AlarmReceiver();
+//        IntentFilter intentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa");
+//        intentFilter.setPriority(1000);
+//        registerReceiver(alarmReceiver,intentFilter);
 
 
         startBtn = (Button)findViewById(R.id.locationActStartBtn);
@@ -102,11 +99,11 @@ public class LocationActivity extends AppCompatActivity {
 
         stopInterval = bundle.getInt("stop_interval");
 
-//        初始化定时
-        alarmIntent = new Intent();
-        alarmIntent.setAction("cn.ac.iscas.nfs.ztboa");
-        pendingIntent  = PendingIntent.getBroadcast(LocationActivity.this,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+////        初始化定时
+//        alarmIntent = new Intent();
+//        alarmIntent.setAction("cn.ac.iscas.nfs.ztboa");
+//        pendingIntent  = PendingIntent.getBroadcast(LocationActivity.this,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+//        alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
 
 
 
@@ -123,11 +120,11 @@ public class LocationActivity extends AppCompatActivity {
                 startBtn.setEnabled(false);
                 stopBtn.setEnabled(true);
 
-//                finalServiceIntent.putExtras(bundle);
-//                startService(finalServiceIntent);
-//                LocationActivity.this.bindService(finalServiceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
+                finalServiceIntent.putExtras(bundle);
+                startService(finalServiceIntent);
+                LocationActivity.this.bindService(finalServiceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
                 Log.e("111","wwwwwwwwwwwwwwwwwffff");
-                startAlarmmanager(0);
+//                startAlarmmanager(0);
 
 
 //                Intent intent = new Intent();
@@ -147,60 +144,60 @@ public class LocationActivity extends AppCompatActivity {
                 stopService(serviceIntent);
 //                textView.setText("请点击‘开始上传’按钮");
 
-//                if (binder != null){
-//                    LocationActivity.this.unbindService(locUpServiceConn);
-//                }
+                if (binder != null){
+                    LocationActivity.this.unbindService(locUpServiceConn);
+                }
 
 
-                stopAlarmmanager();
+//                stopAlarmmanager();
             }
         });
 
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    private void startAlarmmanager(long stopInterval){
-        if (alarmManager!=null && pendingIntent!=null){
-            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-//                alarmManager.setWindow(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,0,pendingIntent);
-//                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
-            }else {
-                Log.e("111","wwweeeeeeeeeeeeeeeeeeeee");
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),stopInterval*1000,pendingIntent);
-            }
-        }
-    }
+//    @TargetApi(Build.VERSION_CODES.M)
+//    private void startAlarmmanager(long stopInterval){
+//        if (alarmManager!=null && pendingIntent!=null){
+//            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+////                alarmManager.setWindow(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,0,pendingIntent);
+////                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
+//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
+//            }else {
+//                Log.e("111","wwweeeeeeeeeeeeeeeeeeeee");
+//                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),stopInterval*1000,pendingIntent);
+//            }
+//        }
+//    }
+//
+//    private void stopAlarmmanager(){
+//        alarmManager.cancel(pendingIntent);
+//        if (binder != null){
+//            LocationActivity.this.unbindService(locUpServiceConn);
+//        }
+//    }
 
-    private void stopAlarmmanager(){
-        alarmManager.cancel(pendingIntent);
-        if (binder != null){
-            LocationActivity.this.unbindService(locUpServiceConn);
-        }
-    }
-
-    public class AlarmReceiver extends BroadcastReceiver{
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("cn.ac.iscas.nfs.ztboa")){
-                Log.e("111","wwwwwwwwwwwwwaaaaaaaa");
-
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-                        Log.e("111",""+stopInterval);
-                        if (serviceIntent!=null && locUpServiceConn!=null){
-                            startService(serviceIntent);
-                            LocationActivity.this.bindService(serviceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
-                        }
-                        LocationActivity.this.startAlarmmanager(stopInterval*60);
-                }else {
-                    if (serviceIntent!=null && locUpServiceConn!=null){
-                        startService(serviceIntent);
-                        LocationActivity.this.bindService(serviceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
-                    }
-                }
-            }
-        }
-    }
+//    public class AlarmReceiver extends BroadcastReceiver{
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            if (intent.getAction().equals("cn.ac.iscas.nfs.ztboa")){
+//                Log.e("111","wwwwwwwwwwwwwaaaaaaaa");
+//
+//                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+//                        Log.e("111",""+stopInterval);
+//                        if (serviceIntent!=null && locUpServiceConn!=null){
+//                            startService(serviceIntent);
+//                            LocationActivity.this.bindService(serviceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
+//                        }
+//                        LocationActivity.this.startAlarmmanager(stopInterval*60);
+//                }else {
+//                    if (serviceIntent!=null && locUpServiceConn!=null){
+//                        startService(serviceIntent);
+//                        LocationActivity.this.bindService(serviceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
 
     class LocUpServiceConn implements ServiceConnection{
@@ -224,7 +221,11 @@ public class LocationActivity extends AppCompatActivity {
         Handler handler = new Handler() {
             public void handleMessage(android.os.Message msg) {
             //在handler中更新UI
-                textView.setText(msg.getData().getString("str")+"\n"+textView.getText().toString());
+                if (textView.getText().toString().split("\n").length>200){
+                    textView.setText(msg.getData().getString("str"));
+                }else {
+                    textView.setText(msg.getData().getString("str")+"\n\n"+textView.getText().toString());
+                }
             };
         };
 

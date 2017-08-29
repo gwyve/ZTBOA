@@ -1,11 +1,14 @@
 package cn.ac.iscas.nfs.ztboa;
 
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -98,6 +101,11 @@ public class LocUpService extends Service {
 
     private BDLocation lastLocation;
 
+    Intent alarmIntent;
+    AlarmManager alarmManager;
+    PendingIntent pendingIntent;
+
+    private int heartCount = 0;
 
     public LocUpService(){
 
@@ -112,7 +120,7 @@ public class LocUpService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        startTask();
+        startAlarmmanager(0);
         return new LocUpBinder();
     }
 
@@ -129,6 +137,17 @@ public class LocUpService extends Service {
         locationUrl = bundle.getString("location_url");
         locationMode = bundle.getString("location_mode");
 
+        //        初始化定时
+        alarmIntent = new Intent();
+        alarmIntent.setAction("cn.ac.iscas.nfs.ztboa");
+        pendingIntent  = PendingIntent.getBroadcast(LocUpService.this,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        AlarmReceiver alarmReceiver = new AlarmReceiver();
+        IntentFilter intentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa");
+        intentFilter.setPriority(1000);
+        registerReceiver(alarmReceiver,intentFilter);
+
 //        mTimer = new Timer();
 //        timerHandler = new TimerHandler();
 
@@ -137,7 +156,8 @@ public class LocUpService extends Service {
         locationService.registerListener(mListener);
         mOption = locationService.getDefaultLocationClientOption();
 
-        startTask();
+        heartCount = -1;
+        startAlarmmanager(0);
 
         if (Build.VERSION.SDK_INT < 18) {
             startForeground(GRAY_SERVICE_ID, new Notification());
@@ -173,34 +193,20 @@ public class LocUpService extends Service {
         // TODO Auto-generated method stub
         // MediaPlayer对象的stop()方法
         stopTask();
+        stopAlarmmanager();
         return super.onUnbind(intent);
     }
     @Override
     public void onDestroy() {
         // TODO Auto-generated method stub
         // MediaPlayer对象的stop()方法
+        stopAlarmmanager();
         super.onDestroy();
     }
 
 
     private synchronized void  startTask(){
 
-//        if (myTimerTask != null){
-//            myTimerTask.cancel();
-//        }
-//        myTimerTask = new MyTimerTask();
-
-//        if (distance == Double.MAX_VALUE){
-//            mTimer.schedule(myTimerTask,0,stopInterval*60*1000);
-//        }else if (distance<1000){
-//            mTimer.schedule(myTimerTask,0,stopInterval*60*1000);
-//        }else if (distance<5000){
-//            mTimer.schedule(myTimerTask,0,5*60*1000);
-//        }else if (distance<10000){
-//            mTimer.schedule(myTimerTask,0,15*60*1000);
-//        }else {
-//            mTimer.schedule(myTimerTask,0,30*60*1000);
-//        }
         gpsCount = 0;
         net90Count = 0;
         net50Count = 0;
@@ -218,25 +224,6 @@ public class LocUpService extends Service {
     }
 
 
-//    private class MyTimerTask extends TimerTask {
-//
-//        @Override
-//        public void run() {
-//            Log.e("111","2222222222222222222222");
-//            gpsCount = 0;
-//            net90Count = 0;
-//            net50Count = 0;
-//
-//            timerHandler.sendEmptyMessage(0);
-//        }
-//    }
-//    private class TimerHandler extends Handler {
-//        @Override
-//        public void handleMessage(Message msg){
-//            Log.e("111","33333333333333333333333333");
-//            startLocation();
-//        }
-//    }
 
     private void startLocation(){
         Log.e("111","4444444444444444444444444444");
@@ -281,14 +268,14 @@ public class LocUpService extends Service {
             // TODO Auto-generated method stub
             synchronized (this){
                 Log.e("111","66666666666666666");
-//                if (dataCallback!=null){
-//                    if (location ==null){
-//                        dataCallback.dataChanged(getCurrentTime()+"   定位回调：null");
-//                    } else{
+                if (dataCallback!=null){
+                    if (location ==null){
+                        dataCallback.dataChanged(getCurrentTime()+"   定位回调：null");
+                    } else{
 //                        JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
-//                        dataCallback.dataChanged(getCurrentTime()+"   定位回调： "+json.toString() );
-//                    }
-//                }
+                        dataCallback.dataChanged(getCurrentTime()+"   定位回调： "+location.getRadius());
+                    }
+                }
                 if (null != location && location.getLocType() != BDLocation.TypeServerError) {
                     Log.e("111",location.getLocType()+""+location.getTime()+userID+location.getLatitude()+"  "+location.getLongitude()+"  "+location.getRadius()+"  "+" net90Count:"+ net90Count+" net50Count:"+net50Count+" gpsCount:"+gpsCount);
                     if (location.getLocType()==161){
@@ -300,7 +287,7 @@ public class LocUpService extends Service {
                                     sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude());
                                 }
                             }
-                            if (net90Count>8){
+                            if (net90Count>12){
                                 locationIsRunning = false;
                                 locationService.stop();
                             }
@@ -313,7 +300,7 @@ public class LocUpService extends Service {
                                 }
 
                             }
-                            if (net50Count>8){
+                            if (net50Count>12){
                                 locationIsRunning = false;
                                 locationService.stop();
                             }
@@ -328,7 +315,14 @@ public class LocUpService extends Service {
                             locationIsRunning = false;
                             locationService.stop();
                         }
+                    }else {
+                        dataCallback.dataChanged("百度的定位不能上网，错误代码"+location.getLocType());
                     }
+
+//                    JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
+//                    sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude());
+//                                                locationIsRunning = false;
+//                            locationService.stop();
                 }else if (location.getLocType() == BDLocation.TypeServerError){
                     JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
                     sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude());
@@ -380,8 +374,8 @@ public class LocUpService extends Service {
                     HttpResponse response = httpClient.execute(httpPost);
                     if (response.getStatusLine().getStatusCode() == 200){
                         Log.e("111",json.toString());
-                        dataCallback.dataChanged("成功: "+json.toString());
                         distance = getDistance(latitude,longitude);
+                        dataCallback.dataChanged("成功: "+json.toString()+"\ndistance"+distance);
                     }else {
                         dataCallback.dataChanged("NET ERROR:"+response.getStatusLine().getStatusCode()+json.toString());
                     }
@@ -394,7 +388,10 @@ public class LocUpService extends Service {
                 } catch (IOException e) {
                     dataCallback.dataChanged("NET ERROR:"+e);
                     e.printStackTrace();
-                }finally {
+                } catch (Exception e){
+                    dataCallback.dataChanged("NET ERROR"+e);
+                    e.printStackTrace();
+                } finally {
                     Log.e("111","ppppppppppppppppp");
                     httpClient.getConnectionManager().shutdown();
                 }
@@ -480,5 +477,101 @@ public class LocUpService extends Service {
     public interface DataCallback{
         void dataChanged(String str);
     }
+
+
+    private void stopAlarmmanager(){
+        alarmManager.cancel(pendingIntent);
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void startAlarmmanager(long stopInterval){
+        if (alarmManager!=null && pendingIntent!=null){
+            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+                alarmManager.setWindow(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,0,pendingIntent);
+//                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
+//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
+            }else {
+                Log.e("111","wwweeeeeeeeeeeeeeeeeeeee");
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),stopInterval*1000,pendingIntent);
+            }
+        }
+    }
+
+
+
+    public class AlarmReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("cn.ac.iscas.nfs.ztboa")){
+                Log.e("111","wwwwwwwwwwwwwaaaaaaaa");
+
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+                    heartCount ++;
+                    LocUpService.this.startAlarmmanager(2*60);
+
+                    if (heartCount==0){
+                        startTask();
+                        heartCount = 1;
+                    }
+
+                    if (distance<5000 || distance==Double.MAX_VALUE){
+                        if (heartCount>3){
+                            startTask();
+                            heartCount = 0;
+                        }
+                    }else if (distance<10000){
+                        if (heartCount>6){
+                            startTask();
+                            heartCount = 0;
+                        }
+                    }else if (distance<15000){
+                        if (heartCount>9){
+                            startTask();
+                            heartCount = 0;
+                        }
+                    }else if (distance<20000){
+                        if (heartCount>12){
+                            startTask();
+                            heartCount = 0;
+                        }
+                    }else if (distance<25000){
+                        if (heartCount>15){
+                            startTask();
+                            heartCount = 0;
+                        }
+                    }else {
+                        if (heartCount>15){
+                            startTask();
+                            heartCount = 0;
+                        }
+                    }
+
+
+
+//                    Log.e("111",""+stopInterval);
+//                    LocUpService.this.startAlarmmanager(stopInterval*60);
+//                    if (distance<5000 || distance==Double.MAX_VALUE){
+//                        LocUpService.this.startAlarmmanager(stopInterval*60);
+//                    }else if (distance<10000){
+//                        LocUpService.this.startAlarmmanager(10*60);
+//                    }else if (distance<15000){
+//                        LocUpService.this.startAlarmmanager(15*60);
+//                    }else if (distance<20000){
+//                        LocUpService.this.startAlarmmanager(20*60);
+//                    }else if (distance<25000){
+//                        LocUpService.this.startAlarmmanager(25*60);
+//                    }else {
+//                        LocUpService.this.startAlarmmanager(30*60);
+//                    }
+//                    Log.e("111",distance+"");
+                }
+
+            }else {
+                startTask();
+            }
+        }
+    }
+
+
 
 }
