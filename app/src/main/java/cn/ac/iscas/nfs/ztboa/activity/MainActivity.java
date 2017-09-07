@@ -1,4 +1,4 @@
-package cn.ac.iscas.nfs.ztboa;
+package cn.ac.iscas.nfs.ztboa.activity;
 
 import android.content.Context;
 import android.content.Entity;
@@ -41,6 +41,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import cn.ac.iscas.nfs.ztboa.R;
+import cn.ac.iscas.nfs.ztboa.ZTBApplication;
 
 public class MainActivity extends AppCompatActivity {
 

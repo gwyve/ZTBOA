@@ -1,4 +1,4 @@
-package cn.ac.iscas.nfs.ztboa;
+package cn.ac.iscas.nfs.ztboa.activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -10,12 +10,13 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
+
+import cn.ac.iscas.nfs.ztboa.R;
 
 public class SplashActivity extends AppCompatActivity {
     private final int SDK_PERMISSION_REQUEST = 127;
