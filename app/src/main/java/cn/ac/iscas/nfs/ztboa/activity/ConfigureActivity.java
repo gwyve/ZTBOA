@@ -37,8 +37,6 @@ public class ConfigureActivity extends AppCompatActivity {
 //    private EditText stopLocationTypeEdit;
     private EditText stopIntervalEdit;
     private EditText locationUrlEdit;
-    private RadioGroup locationModeRadioGroup;
-    private Button nextBtn;
 
 
 
@@ -146,6 +144,10 @@ public class ConfigureActivity extends AppCompatActivity {
                 goNextAct();
             }
         });
+
+    }
+
+    private void updateLocationTime(Date begin1,Date end1,Date begin2, Date end2){
 
     }
 

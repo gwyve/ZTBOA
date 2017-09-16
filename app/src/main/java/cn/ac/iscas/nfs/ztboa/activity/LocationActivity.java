@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -57,7 +58,6 @@ public class LocationActivity extends AppCompatActivity {
 
 
         locUpServiceConn = new LocUpServiceConn();
-
         serviceIntent = new Intent(LocationActivity.this,LocUpService.class);
         stopBtn.setEnabled(false);
         final Intent finalServiceIntent = serviceIntent;
@@ -66,10 +66,10 @@ public class LocationActivity extends AppCompatActivity {
             public void onClick(View v) {
                 startBtn.setEnabled(false);
                 stopBtn.setEnabled(true);
+                Log.e("111","2222222222222");
 
                 startService(finalServiceIntent);
                 LocationActivity.this.bindService(finalServiceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
-                Log.e("111","wwwwwwwwwwwwwwwwwffff");
 
             }
         });

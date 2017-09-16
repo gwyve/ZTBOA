@@ -6,4 +6,29 @@
     android:layout_height="match_parent"
     tools:context="cn.ac.iscas.nfs.ztboa.activity.LoginActivity">
 
+
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="495dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="8dp">
+
+
+        <Button
+            android:id="@+id/loginActButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="16dp" />
+        <TextView
+            android:id="@+id/loginActTextview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            tools:layout_editor_absoluteX="161dp"
+            tools:layout_editor_absoluteY="215dp" />
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

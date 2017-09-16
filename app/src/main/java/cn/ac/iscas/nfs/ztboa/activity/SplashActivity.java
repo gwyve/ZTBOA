@@ -119,9 +119,7 @@ public class SplashActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent(SplashActivity.this,ConfigureActivity.class);
-                    startActivity(intent);
-                    SplashActivity.this.finish();
+                goNext();
                 }
             },1000);
         }else {
@@ -156,16 +154,19 @@ public class SplashActivity extends AppCompatActivity {
 
         getPersimmions();
         if (hasPermission()){
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Intent intent = new Intent(SplashActivity.this,ConfigureActivity.class);
-                    startActivity(intent);
-                    SplashActivity.this.finish();
-                }
-            },1000);
+            goNext();
         }
 
 
+    }
+    private void goNext(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(SplashActivity.this,LoginActivity.class);
+                startActivity(intent);
+                SplashActivity.this.finish();
+            }
+        },1000);
     }
 }

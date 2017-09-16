@@ -6,10 +6,25 @@ android {
 
     defaultConfig {
         applicationId "cn.ac.iscas.nfs.ztboa"
-        minSdkVersion 17
+        minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+
+//        信鸽相关配置
+        ndk {
+            //根据需要 自行选择添加的对应cpu类型的.so库。
+            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            // 还可以添加 'x86', 'x86_64', 'mips', 'mips64'
+        }
+
+        manifestPlaceholders = [
+
+                XG_ACCESS_ID:"2100267248",
+                XG_ACCESS_KEY : "ACHJ466X26YE",
+        ]
+
+
     }
     buildTypes {
         release {
@@ -26,6 +41,14 @@ android {
 }
 
 dependencies {
+//  信鸽配置
+    //信鸽稳定版
+    compile 'com.tencent.xinge:xinge:3.1.8-alpha'
+    //wup包 如果和其他腾讯系的sdk 发生wup冲突，这个依赖可不添加
+    compile 'com.tencent.wup:wup:1.0.0.E-alpha'
+    //mid包
+    compile 'com.tencent.mid:mid:3.72.4-alpha'
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'org.json:json:20170516'

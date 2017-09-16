@@ -1,5 +1,6 @@
 package cn.ac.iscas.nfs.ztboa.Utils;
 
+import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import cn.ac.iscas.nfs.ztboa.R;
 import cn.ac.iscas.nfs.ztboa.service.LocUpService;
 import cn.ac.iscas.nfs.ztboa.ZTBApplication;
 
@@ -35,6 +37,10 @@ public class NetUtil {
     }
     public void shortShowDetail(String str){
         Toast.makeText(app,str,Toast.LENGTH_SHORT).show();
+    }
+
+    public void longShowDetail(Context context,String str){
+        Toast.makeText(context,str,Toast.LENGTH_LONG).show();
     }
 
 

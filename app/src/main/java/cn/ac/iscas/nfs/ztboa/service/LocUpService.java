@@ -22,6 +22,7 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClientOption;
 import com.baidu.location.service.LocationService;
+import com.tencent.android.tpush.XGPushBaseReceiver;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +33,7 @@ import cn.ac.iscas.nfs.ztboa.Utils.ConfigInfo;
 import cn.ac.iscas.nfs.ztboa.Utils.NetUtil;
 import cn.ac.iscas.nfs.ztboa.Utils.Utils;
 import cn.ac.iscas.nfs.ztboa.ZTBApplication;
+import cn.ac.iscas.nfs.ztboa.pushUtils.XGPushReceiver;
 
 /**
  * Created by VE on 2017/8/21.
@@ -87,7 +89,7 @@ public class LocUpService extends Service {
     AlarmManager alarmManager;
     PendingIntent pendingIntent;
 
-    private int heartCount = 0;
+    private int heartCount;
 
     NetUtil netUtil;
 
@@ -129,6 +131,13 @@ public class LocUpService extends Service {
         end2 = configInfo.getEnd2();
 
 
+//        设置信鸽
+        XGPushReceiver.setContext(this);
+        XGReceiver xgReceiver = new XGReceiver();
+        IntentFilter xgintentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa.xgpush");
+        xgintentFilter.setPriority(1000);
+        registerReceiver(xgReceiver,xgintentFilter);
+
 
         //        初始化定时
         alarmIntent = new Intent();
@@ -157,7 +166,8 @@ public class LocUpService extends Service {
             startForeground(GRAY_SERVICE_ID, new Notification());
         }
 
-        return super.onStartCommand(intent,flags,startId);
+//        return super.onStartCommand(intent,flags,startId);
+        return START_STICKY;
     }
 
     //给API >= 18 的平台上做灰色保护手段
@@ -239,7 +249,6 @@ public class LocUpService extends Service {
         public void onReceiveLocation(BDLocation location) {
             // TODO Auto-generated method stub
             synchronized (this){
-                Log.e("111","66666666666666666");
                 if (dataCallback!=null){
                     if (location ==null){
                         dataCallback.dataChanged(Utils.getCurrentTime()+"   定位回调：null");
@@ -366,7 +375,6 @@ public class LocUpService extends Service {
 //                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
 //                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
             }else {
-                Log.e("111","wwweeeeeeeeeeeeeeeeeeeee");
                 alarmManager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),pendingIntent);
             }
         }
@@ -378,21 +386,16 @@ public class LocUpService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("cn.ac.iscas.nfs.ztboa")) {
-                Log.e("111", "wwwwwwwwwwwwwaaaaaaaa");
-
-//                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
                 Date curDate = Utils.getCurrentHourMinute();
-                Log.e("curdd",curDate.getTime()+"");
-                Log.e("begin1",begin1.getTime()+"");
-                Log.e("end1",end1.getTime()+"");
-                Log.e("bebin2",begin2.getTime()+"");
-                Log.e("end2",end2.getTime()+"");
+
+
+                heartCount++;
+                LocUpService.this.startAlarmmanager(2 * 60);
+                Log.e("111","kkkkkkkkkkkkkk"+heartCount);
+
+
                 if ((curDate.getTime() > begin1.getTime() && curDate.getTime() < end1.getTime()) || (curDate.getTime() > begin2.getTime() && curDate.getTime() < end2.getTime())) {
-
-
-                    heartCount++;
-                    LocUpService.this.startAlarmmanager(2 * 60);
-
+//                if (true){
                     if (heartCount == 0) {
                         startTask();
                         heartCount = 1;
@@ -429,20 +432,31 @@ public class LocUpService extends Service {
                             heartCount = 0;
                         }
                     }
+                }else {
+                    dataCallback.dataChanged(Utils.getCurrentTime()+": 单纯就是打一巴掌");
                 }
+
             }else {
 
             }
 
-
-//                }
-//
-//            }else {
-//                startTask();
-//            }
         }
     }
 
+
+    public class XGReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("cn.ac.iscas.nfs.ztboa.xgpush")) {
+                Log.e("111","ttttttttttttttttt");
+                heartCount = -1;
+                Intent intent1 = new Intent();
+                intent1.setAction("cn.ac.iscas.nfs.ztboa");
+                LocUpService.this.sendBroadcast(intent1);
+            }
+        }
+    }
 
 
 }
