@@ -375,7 +375,7 @@ public class LocUpService extends Service {
 //                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
 //                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
             }else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),pendingIntent);
+                alarmManager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis()+stopInterval*1000,pendingIntent);
             }
         }
     }
@@ -433,7 +433,8 @@ public class LocUpService extends Service {
                         }
                     }
                 }else {
-                    dataCallback.dataChanged(Utils.getCurrentTime()+": 单纯就是打一巴掌");
+                    if (dataCallback!=null)
+                        dataCallback.dataChanged(Utils.getCurrentTime()+": 单纯就是打一巴掌");
                 }
 
             }else {

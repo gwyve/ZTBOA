@@ -51,7 +51,7 @@ public class XGPushReceiver extends XGPushBaseReceiver {
         Log.e("111",xgPushTextMessage.toString());
         if (context!=null){
             Log.e("1111",xgPushTextMessage.getContent());
-            if (xgPushTextMessage.getContent().equals("startLocation")){
+            if (xgPushTextMessage.getContent().equals("0000")){
                 sendLocUp();
             }
         }

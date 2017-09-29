@@ -133,6 +133,49 @@ public class NetUtil {
         }).start();
     }
 
+//    发送信鸽的信息
+    public void sendBytes(final String url, final byte[] context){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpPost httpPost = new HttpPost(url);
+                try {
+                    httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 3000);
+                    httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 3000);
+
+                    ByteArrayEntity entity = new ByteArrayEntity(context);
+//                    StringEntity entity = new StringEntity(json.toString(), "utf-8");
+                    entity.setContentEncoding("");
+                    entity.setContentType("");
+                    httpPost.setEntity(entity);
+                    HttpResponse response = httpClient.execute(httpPost);
+                    if (response.getStatusLine().getStatusCode() == 200) {
+
+                    } else {
+//                        longShowDetail("定位上传网络错误,http错误代码：" +response.getStatusLine().getStatusCode(),dataCallback);
+                    }
+                    Log.e("111","rrrrrrrrrrrrrrrr"+response.getStatusLine().getStatusCode());
+                } catch (UnsupportedEncodingException e) {
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+                    e.printStackTrace();
+                } catch (ClientProtocolException e) {
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+                    e.printStackTrace();
+                } catch (IOException e) {
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+                    e.printStackTrace();
+                } catch (Exception e){
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+                    e.printStackTrace();
+                } finally {
+                    httpClient.getConnectionManager().shutdown();
+                }
+
+            }
+        }).start();
+    }
+
     private float getDistance(double latitude2,double longitude2){
         float[] res=new float[1];
         double workLatitude = Double.valueOf(app.configInfo.getCenterLatitude()).doubleValue();

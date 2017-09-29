@@ -4,8 +4,11 @@ import android.app.Application;
 import android.app.Service;
 import android.content.SharedPreferences;
 import android.os.Vibrator;
+import android.util.Log;
 
 import com.baidu.location.service.LocationService;
+import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 import cn.ac.iscas.nfs.ztboa.Utils.ConfigInfo;
 import cn.ac.iscas.nfs.ztboa.Utils.NetUtil;
@@ -19,6 +22,8 @@ public class ZTBApplication extends Application{
     public LocationService locationService;
     public Vibrator mVibrator;
 
+    public static IWXAPI mWxApi;
+    private String WX_APP_ID = "wxd5f571e673b5e375";
 
 //    网络上传工具
     public NetUtil netUtil;
@@ -37,6 +42,9 @@ public class ZTBApplication extends Application{
         mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
         netUtil = new NetUtil(this);
 //        SDKInitializer.initialize(getApplicationContext());
+        mWxApi = WXAPIFactory.createWXAPI(this, WX_APP_ID, false);
+        mWxApi.registerApp(WX_APP_ID);
+
 
     }
 

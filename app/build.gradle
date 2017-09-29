@@ -20,8 +20,8 @@ android {
 
         manifestPlaceholders = [
 
-                XG_ACCESS_ID:"2100267248",
-                XG_ACCESS_KEY : "ACHJ466X26YE",
+                XG_ACCESS_ID:"2100266626",
+                XG_ACCESS_KEY : "A3M41VPM66AL",
         ]
 
 
@@ -48,6 +48,9 @@ dependencies {
     compile 'com.tencent.wup:wup:1.0.0.E-alpha'
     //mid包
     compile 'com.tencent.mid:mid:3.72.4-alpha'
+
+//    维信包
+    compile 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.4.0'
