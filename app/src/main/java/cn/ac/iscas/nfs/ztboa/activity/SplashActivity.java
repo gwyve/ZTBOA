@@ -3,20 +3,36 @@ package cn.ac.iscas.nfs.ztboa.activity;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 import cn.ac.iscas.nfs.ztboa.R;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class SplashActivity extends AppCompatActivity {
     private final int SDK_PERMISSION_REQUEST = 127;
@@ -41,8 +57,8 @@ public class SplashActivity extends AppCompatActivity {
 //  是否root
     private boolean isRoot;
 
-
-
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
 
     @TargetApi(23)
@@ -134,6 +150,9 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        sharedPreferences = getSharedPreferences("cn.ac.iscas.nfs.ztboa",Context.MODE_WORLD_WRITEABLE);
+        editor = sharedPreferences.edit();
+
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
             String packageName = getApplication().getPackageName();
             boolean isIgnoring = ((PowerManager) getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(packageName);
@@ -150,23 +169,104 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }
         }
-
-
         getPersimmions();
         if (hasPermission()){
             goNext();
         }
-
-
     }
-    private void goNext(){
-        new Handler().postDelayed(new Runnable() {
+
+    private void checkVersion(){
+
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        OkHttpClient client = new OkHttpClient();
+        RequestBody body = new FormBody.Builder()
+                .add("","")
+                .build();
+        final Request request = new Request.Builder()
+                .url("http:192.168.1.100:8081/version.php")
+                .post(body).build();
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
             @Override
-            public void run() {
-                Intent intent = new Intent(SplashActivity.this,LoginActivity.class);
-                startActivity(intent);
-                SplashActivity.this.finish();
+            public void onFailure(Call call, IOException e) {
+                    SplashActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            SplashActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    new AlertDialog.Builder(SplashActivity.this).
+                                            setMessage("网络不可用，\n请检查网络设置").
+                                            setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    SplashActivity.this.finish();
+                                                    System.exit(0);
+                                                }})
+                                            .show();
+                                }
+                            });
+                        }
+                    });
             }
-        },1000);
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    JSONObject resJson = new JSONObject(response.body().string());
+                    float serVersion = Float.parseFloat(resJson.getString("version"));
+
+                    PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(),0);
+                    float curVersion = Float.parseFloat(pi.versionName);
+                    if (curVersion>serVersion){
+//                        成功
+                        Intent intent = new Intent(SplashActivity.this,BindActivity.class);
+                        startActivity(intent);
+                        SplashActivity.this.finish();
+                    }else {
+                        SplashActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                new AlertDialog.Builder(SplashActivity.this).
+                                        setMessage("该版本已不可用，\n请下载新版本应用").
+                                        setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                SplashActivity.this.finish();
+                                                System.exit(0);
+                                                }})
+                                        .show();
+                            }
+                        });
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
+
+    private void goNext(){
+        checkVersion();
+
+//        setConfig();
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+
+//            }
+//        },1000);
+    }
+
+    private void setConfig(){
+        editor.putInt("interval",5);
+        editor.putInt("stop_interval",5);
+        editor.putString("work_longitude","116.343789");
+        editor.putString("work_latitude","39.985749");
+        editor.putString("location_url","http://iscas-ztb-weixin03.wisvision.cn/app/upload/zippos");
+    }
+
+
 }

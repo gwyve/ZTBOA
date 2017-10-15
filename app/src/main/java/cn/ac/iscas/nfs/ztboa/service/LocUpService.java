@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +28,8 @@ import com.tencent.android.tpush.XGPushBaseReceiver;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cn.ac.iscas.nfs.ztboa.Utils.ConfigInfo;
@@ -93,7 +96,8 @@ public class LocUpService extends Service {
 
     NetUtil netUtil;
 
-
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
     public LocUpService(){
 
@@ -111,6 +115,15 @@ public class LocUpService extends Service {
         startAlarmmanager(0);
         return new LocUpBinder();
     }
+    @Override
+    public void onCreate(){
+        super.onCreate();
+
+        AlarmReceiver alarmReceiver = new AlarmReceiver();
+        IntentFilter intentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa");
+        intentFilter.setPriority(1000);
+        registerReceiver(alarmReceiver,intentFilter);
+    }
 
 
     @Override
@@ -118,25 +131,30 @@ public class LocUpService extends Service {
         netUtil = ((ZTBApplication)getApplication()).netUtil;
 
 
-        ConfigInfo configInfo = ((ZTBApplication)getApplication()).configInfo;
-        userID = configInfo.getUserID();
-        interval = configInfo.getInterval();
-        centerLongitude = configInfo.getCenterLongitude();
-        centerLatitude = configInfo.getCenterLatitude();
-        stopInterval = configInfo.getStopInterval();
-        locationUrl = configInfo.getLocationUrl();
-        begin1 = configInfo.getBegin1();
-        end1 = configInfo.getEnd1();
-        begin2 = configInfo.getBegin2();
-        end2 = configInfo.getEnd2();
+        sharedPreferences = getSharedPreferences("cn.ac.iscas.nfs.ztboa",Context.MODE_WORLD_WRITEABLE);
+        editor = sharedPreferences.edit();
+//        ConfigInfo configInfo = ((ZTBApplication)getApplication()).configInfo;
+//        userID = configInfo.getUserID();
+//        interval = configInfo.getInterval();
+//        centerLongitude = configInfo.getCenterLongitude();
+//        centerLatitude = configInfo.getCenterLatitude();
+//        stopInterval = configInfo.getStopInterval();
+//        locationUrl = configInfo.getLocationUrl();
+//        begin1 = configInfo.getBegin1();
+//        end1 = configInfo.getEnd1();
+//        begin2 = configInfo.getBegin2();
+//        end2 = configInfo.getEnd2();
+
+        setConfig();
+
 
 
 //        设置信鸽
-        XGPushReceiver.setContext(this);
-        XGReceiver xgReceiver = new XGReceiver();
-        IntentFilter xgintentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa.xgpush");
-        xgintentFilter.setPriority(1000);
-        registerReceiver(xgReceiver,xgintentFilter);
+//        XGPushReceiver.setContext(this);
+//        XGReceiver xgReceiver = new XGReceiver();
+//        IntentFilter xgintentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa.xgpush");
+//        xgintentFilter.setPriority(1000);
+//        registerReceiver(xgReceiver,xgintentFilter);
 
 
         //        初始化定时
@@ -145,10 +163,10 @@ public class LocUpService extends Service {
         pendingIntent  = PendingIntent.getBroadcast(LocUpService.this,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
 
-        AlarmReceiver alarmReceiver = new AlarmReceiver();
-        IntentFilter intentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa");
-        intentFilter.setPriority(1000);
-        registerReceiver(alarmReceiver,intentFilter);
+//        AlarmReceiver alarmReceiver = new AlarmReceiver();
+//        IntentFilter intentFilter = new IntentFilter("cn.ac.iscas.nfs.ztboa");
+//        intentFilter.setPriority(1000);
+//        registerReceiver(alarmReceiver,intentFilter);
 
         locationService = ((ZTBApplication) getApplication()).locationService;
         //获取locationservice实例，建议应用中只初始化1个location实例，然后使用，可以参考其他示例的activity，都是通过此种方式获取locationservice实例的
@@ -211,7 +229,7 @@ public class LocUpService extends Service {
         net90Count = 0;
         net50Count = 0;
         startLocation();
-
+        Log.e("111","startTask()=================");
     }
     private void stopTask(){
         locationIsRunning = false;
@@ -226,7 +244,8 @@ public class LocUpService extends Service {
             JSONObject json = createjson(lastLocation.getLocType()+"",lastLocation.getTime(),userID,lastLocation.getLatitude()+"",lastLocation.getLongitude()+"",lastLocation.getRadius()+"");
 //            netUtil.sendRequestWithHttpClient(locationUrl,json,lastLocation.getLatitude(),lastLocation.getLongitude(),dataCallback);
             byte[] bytes = Utils.locatonEncode((short) lastLocation.getLocType(),Utils.getTimeMillis(lastLocation.getTime()),userID,lastLocation.getLatitude(),lastLocation.getLongitude(),(short)lastLocation.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
-            netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,lastLocation.getLatitude(),lastLocation.getLongitude(),dataCallback);
+            netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
+                    bytes,lastLocation.getLatitude(),lastLocation.getLongitude(),dataCallback);
         }
         locationIsRunning = false;
         locationService.stop();
@@ -268,7 +287,9 @@ public class LocUpService extends Service {
 //                                    netUtil.sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude(),dataCallback);
 
                                     byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),(short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
-                                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
+//                                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
+                                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
+                                            bytes,location.getLatitude(),location.getLongitude(),dataCallback);
                                 }
                             }
                             if (net90Count>12){
@@ -282,7 +303,9 @@ public class LocUpService extends Service {
                                     JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
 //                                    netUtil.sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude(),dataCallback);
                                     byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),(short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
-                                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
+//                                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
+                                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
+                                            bytes,location.getLatitude(),location.getLongitude(),dataCallback);
                                 }
 
                             }
@@ -297,7 +320,9 @@ public class LocUpService extends Service {
                             JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
 //                            netUtil.sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude(),dataCallback);
                             byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),(short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
-                            netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
+//                            netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
+                            netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
+                                    bytes,location.getLatitude(),location.getLongitude(),dataCallback);
                         }
                         if (gpsCount>5){
                             locationIsRunning = false;
@@ -312,7 +337,9 @@ public class LocUpService extends Service {
                     JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
 //                    netUtil.sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude(),dataCallback);
                     byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),(short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
-                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
+//                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
+                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
+                            bytes,location.getLatitude(),location.getLongitude(),dataCallback);
                 }
                 if (locationIsRunning){
                     lastLocation = location;
@@ -459,5 +486,23 @@ public class LocUpService extends Service {
         }
     }
 
+//  设置配置信息
+    private void setConfig(){
+        userID = sharedPreferences.getInt("user_id",0);
+        interval = sharedPreferences.getInt("interval",5);
+        centerLongitude = sharedPreferences.getString("work_longitude","116.343789");
+        centerLatitude = sharedPreferences.getString("work_latitude","39.985749");
+        stopInterval = sharedPreferences.getInt("stop_interval",5);
+        locationUrl = sharedPreferences.getString("location_url","http://iscas-ztb-weixin03.wisvision.cn/app/upload/zippos");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        try {
+            begin1 = dateFormat.parse(sharedPreferences.getString("begin1","07:30"));
+            end1 = dateFormat.parse(sharedPreferences.getString("end1","09:00"));
+            begin2 = dateFormat.parse(sharedPreferences.getString("begin2","16:30"));
+            end2 = dateFormat.parse(sharedPreferences.getString("end2","17:30"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

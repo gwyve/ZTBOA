@@ -88,7 +88,7 @@ public class NetUtil {
 
 
 
-    public void sendRequestWithHttpClient42Bytes(final String url, final JSONObject json,
+    public void sendRequestWithHttpClient42Bytes(final String url, final JSONObject json, final double workLatitude, final double workLongitude,
                                                  final byte[] context, final double centerLatitude, final double centerLongitude, final LocUpService.DataCallback dataCallback){
         new Thread(new Runnable() {
             @Override
@@ -106,7 +106,7 @@ public class NetUtil {
                     httpPost.setEntity(entity);
                     HttpResponse response = httpClient.execute(httpPost);
                     if (response.getStatusLine().getStatusCode() == 200) {
-                        app.distance = getDistance(centerLatitude,centerLongitude);
+                        app.distance = getDistance(workLatitude,workLongitude,centerLatitude,centerLongitude);
                         dataCallback.dataChanged("成功 "+json.toString());
                         Log.e("成功",""+json.toString());
                     } else {
@@ -175,6 +175,16 @@ public class NetUtil {
             }
         }).start();
     }
+
+    private float getDistance(double workLatitude,double workLongitude,double latitude2,double longitude2){
+        float[] res=new float[1];
+//        double workLatitude = Double.valueOf(app.configInfo.getCenterLatitude()).doubleValue();
+//        double workLongitude = Double.valueOf(app.configInfo.getCenterLongitude()).doubleValue();
+        Location.distanceBetween(workLatitude, workLongitude, latitude2, longitude2, res);
+        return res[0];
+    }
+
+
 
     private float getDistance(double latitude2,double longitude2){
         float[] res=new float[1];
