@@ -17,11 +17,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +59,7 @@ public class LocationActivity extends AppCompatActivity {
     private ViewGroup rootView;
     private ImageButton settingButton;
     private ImageView background;
+
 
     private WebView webView;
 
@@ -222,6 +225,15 @@ public class LocationActivity extends AppCompatActivity {
         webView.setPadding(0,0,0,0);
         RelativeLayout.LayoutParams webviewParams = (RelativeLayout.LayoutParams)webView.getLayoutParams();
         webviewParams.setMargins(0,height*87/1300,0,0);
+//        webview设置
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(false);
+        webSettings.setDatabaseEnabled(false);
+        webSettings.setAppCacheEnabled(false);
+
+
+
         webView.loadUrl("http://iscas-ztb-weixin03.wisvision.cn/app/autoatt/record/1/"+sharedPreferences.getInt("user_id",0));
         webView.setWebViewClient(new WebViewClient(){
             @Override
@@ -232,6 +244,8 @@ public class LocationActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+
     }
 
     @Override

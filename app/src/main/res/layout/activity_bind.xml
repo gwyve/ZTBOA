@@ -11,10 +11,30 @@
     tools:context="cn.ac.iscas.nfs.ztboa.activity.BindActivity">
 
 
+
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bindActBackground"/>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginActCompanyRadioGroup">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/loginActCompany_1"
+            android:text="总体部"></RadioButton>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/LoginActCompany_5"
+            android:text="中科方德"/>
+    </RadioGroup>
+
+
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,6 +43,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bindActEmailEditText"/>
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bindActPhoneEditText"/>
 
     <ProgressBar
         android:layout_width="match_parent"

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -46,6 +49,8 @@ public class BindActivity extends AppCompatActivity {
     private ViewGroup rootView;
     private ImageView backImage;
     private EditText emailEditText;
+    private EditText phoneEditText;
+    private RadioGroup companyRadioGroup;
     private ImageButton imageButton;
 
     private ProgressBar progressBar;
@@ -80,6 +85,8 @@ public class BindActivity extends AppCompatActivity {
         rootView = (ViewGroup)findViewById(R.id.bindActRootView);
         backImage  =(ImageView)findViewById(R.id.bindActBackground);
         emailEditText = (EditText) findViewById(R.id.bindActEmailEditText);
+        phoneEditText = (EditText) findViewById(R.id.bindActPhoneEditText);
+        companyRadioGroup = (RadioGroup)findViewById(R.id.loginActCompanyRadioGroup);
         imageButton = (ImageButton) findViewById(R.id.bindActImageBtn);
 
         progressBar = (ProgressBar)findViewById(R.id.bindActProgressBar);
@@ -89,9 +96,20 @@ public class BindActivity extends AppCompatActivity {
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                imageButton.setClickable(false);
-                getUserId(emailEditText.getText().toString());
-
+                RadioButton rb = (RadioButton)findViewById(companyRadioGroup.getCheckedRadioButtonId());
+                if (rb == null){
+                    Toast.makeText(BindActivity.this,"请选择公司",Toast.LENGTH_LONG).show();
+                }else {
+                    int company_id;
+                    if (rb.getText().toString().equals("总体部")){
+                        company_id = 1;
+                    }else {
+                        company_id = 5;
+                    }
+//                  访问服务器，获得user id
+                    imageButton.setClickable(false);
+                    getUserId(emailEditText.getText().toString(),phoneEditText.getText().toString(),company_id);
+                }
             }
         });
     }
@@ -120,27 +138,52 @@ public class BindActivity extends AppCompatActivity {
                     emailEditText.setText("");
             }
         });
+//      phone的输入框
+        phoneEditText.setPadding(0,0,0,0);
+        phoneEditText.getLayoutParams().height = height*100/1300;
+        phoneEditText.getLayoutParams().width = width*625/750;
+        final RelativeLayout.LayoutParams phoneEditParams = (RelativeLayout.LayoutParams)phoneEditText.getLayoutParams();
+        phoneEditParams.setMargins(width*64/750,height*680/1300,width*63/750,0);
+        phoneEditText.setPaddingRelative(width*20/750,0,0,0);
+        phoneEditText.setText("请输入手机号进行绑定");
+        phoneEditText.setBackground(getResources().getDrawable(R.drawable.bind_act_email));
+        phoneEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (phoneEditText.getText().toString().equals("请输入手机号进行绑定"))
+                    phoneEditText.setText("");
+            }
+        });
+
+//      公司选择radio
+        RelativeLayout.LayoutParams companyRadioGroupParams = (RelativeLayout.LayoutParams) companyRadioGroup.getLayoutParams();
+        companyRadioGroupParams.setMargins(width*60/750,height*800/1300,width*60/750,0);
 
 //        imagebutton
         imageButton.setPadding(0,0,0,0);
         imageButton.getLayoutParams().width = width*630/750;
         imageButton.getLayoutParams().height = height*100/1300;
         RelativeLayout.LayoutParams imageButtonParams = (RelativeLayout.LayoutParams)imageButton.getLayoutParams();
-        imageButtonParams.setMargins(width*62/750,height*800/1300,0,0);
+        imageButtonParams.setMargins(width*62/750,height*1030/1300,0,0);
         Picasso.with(context).load(R.drawable.bind_act_btn).fit().into(imageButton);
     }
 
-    private void getUserId(final String email){
+    private void getUserId(final String email, final String phone, final int company_id){
         progressBar.setVisibility(View.VISIBLE);
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         OkHttpClient client = new OkHttpClient();
-        JSONObject json = new JSONObject();
+        final JSONObject json = new JSONObject();
         try {
             json.put("email",email);
+            json.put("phone",phone);
+            json.put("company",company_id);
+
             RequestBody body = RequestBody.create(JSON,json.toString());
             Request request = new Request.Builder()
-                    .url("http:192.168.1.100:8081/userid.php")
+//                    .url("http:192.168.1.100:8081/userid.php")
+//                    .url("http://iscas-ztb-weixin03.wisvision.cn/app/info")
+                    .url("http://iscas-ztb-weixin03.wisvision.cn/app/bind")
                     .post(body).build();
             Call call = client.newCall(request);
             call.enqueue(new Callback() {
@@ -159,19 +202,32 @@ public class BindActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
-                        JSONObject resJson = new JSONObject(response.body().string());
-                        if (resJson.getInt("userid")==-1){
+                        final JSONObject resJson = new JSONObject(response.body().string());
+                        Log.e("111",resJson.toString());
+                        Log.e("111","======================================");
+                        Log.e("111",json.toString());
+                        if (resJson.getInt("code")!=1000 || resJson.getInt("user_id")==-1 ){
+                            Log.e("111","==++++++++++++++++++++++++++++++++");
                             BindActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     progressBar.setVisibility(View.INVISIBLE);
-                                    Toast.makeText(BindActivity.this,"请输入正确电子邮箱",Toast.LENGTH_LONG).show();
+                                    try {
+                                        Toast.makeText(BindActivity.this,resJson.getString("err_msg"),Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+                                        Toast.makeText(BindActivity.this,"服务器有错误",Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             });
                         }else {
+                            Log.e("111","kkkkkkkkkkkkkkkkkkk");
                             editor.putString("email",email);
-                            editor.putInt("user_id",resJson.getInt("userid"));
-                            editor.putString("user_name",resJson.getString("name"));
+                            editor.putString("phone",phone);
+                            editor.putInt("company_id",company_id);
+
+                            editor.putInt("user_id",resJson.getInt("user_id"));
+//                            editor.putString("user_name",resJson.getString("name"));
                             editor.commit();
 
                             Intent intent = new Intent(BindActivity.this,LocationActivity.class);

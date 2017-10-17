@@ -183,8 +183,9 @@ public class SplashActivity extends AppCompatActivity {
                 .add("","")
                 .build();
         final Request request = new Request.Builder()
-                .url("http:192.168.1.100:8081/version.php")
-                .post(body).build();
+//                .url("http:192.168.1.100:8081/version.php")
+                .url("http://iscas-ztb-weixin03.wisvision.cn/app/minimum_version")
+                .build();
         Call call = client.newCall(request);
         call.enqueue(new Callback() {
             @Override
@@ -215,7 +216,7 @@ public class SplashActivity extends AppCompatActivity {
                 try {
                     JSONObject resJson = new JSONObject(response.body().string());
                     float serVersion = Float.parseFloat(resJson.getString("version"));
-
+                    final String url = resJson.getString("address");
                     PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(),0);
                     float curVersion = Float.parseFloat(pi.versionName);
                     if (curVersion>serVersion){
@@ -232,8 +233,12 @@ public class SplashActivity extends AppCompatActivity {
                                         setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
+                                                Intent intent = new Intent();
+                                                intent.setAction("android.intent.action.VIEW");
+                                                Uri content_url = Uri.parse(url);
+                                                intent.setData(content_url);
+                                                startActivity(intent);
                                                 SplashActivity.this.finish();
-                                                System.exit(0);
                                                 }})
                                         .show();
                             }

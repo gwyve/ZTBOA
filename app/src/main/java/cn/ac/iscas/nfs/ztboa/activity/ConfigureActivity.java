@@ -18,6 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -45,6 +47,10 @@ public class ConfigureActivity extends AppCompatActivity {
     private ImageButton imageButton;
     private ImageButton homeButton;
     private Switch aSwitch;
+    private RadioGroup companyRadioGroup;
+    private RadioButton companyRadioButton1;
+    private RadioButton companyRadioBUtton5;
+
 
 //    两个滑动控件
     RangeSeekBar<Integer> seekBar;
@@ -92,6 +98,10 @@ public class ConfigureActivity extends AppCompatActivity {
         rootView = (ViewGroup)findViewById(R.id.configActRootView);
         aSwitch = (Switch) findViewById(R.id.configActSwitch);
 
+        companyRadioGroup = (RadioGroup)findViewById(R.id.configureActCompanyRadioGroup);
+        companyRadioButton1 = (RadioButton)findViewById(R.id.configureActCompany_1);
+        companyRadioBUtton5 = (RadioButton)findViewById(R.id.configureActCompany_5);
+
         sharedPreferences = getSharedPreferences("cn.ac.iscas.nfs.ztboa",Context.MODE_WORLD_WRITEABLE);
         editor = sharedPreferences.edit();
 
@@ -105,9 +115,17 @@ public class ConfigureActivity extends AppCompatActivity {
 //        aSwitch.setChecked(true);
         try {
             seekBar.setSelectedMinValue((int)dateFormat.parse(sharedPreferences.getString("begin1","07:30")).getTime());
-            seekBar.setSelectedMaxValue((int)dateFormat.parse(sharedPreferences.getString("end1","09:00")).getTime());
-            seekBar2.setSelectedMinValue((int)dateFormat.parse(sharedPreferences.getString("begin2","16:30")).getTime());
-            seekBar2.setSelectedMaxValue((int)dateFormat.parse(sharedPreferences.getString("end2","17:30")).getTime());
+            seekBar.setSelectedMaxValue((int)dateFormat.parse(sharedPreferences.getString("end1","09:30")).getTime());
+            seekBar2.setSelectedMinValue((int)dateFormat.parse(sharedPreferences.getString("begin2","17:30")).getTime());
+            seekBar2.setSelectedMaxValue((int)dateFormat.parse(sharedPreferences.getString("end2","19:30")).getTime());
+
+            int company_id = sharedPreferences.getInt("company_id",1);
+            if (company_id == 1){
+                companyRadioButton1.setChecked(true);
+            }else if (company_id == 5){
+                companyRadioBUtton5.setChecked(true);
+            }
+            
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -138,11 +156,26 @@ public class ConfigureActivity extends AppCompatActivity {
                 application.putActivity("ConfigureActivity",ConfigureActivity.this);
                 application.confirmSetting = true;
 
+//                公司信息
+
+
                 editor.putString("begin1",begin1TextView.getText().toString());
                 editor.putString("begin2",begin2TextView.getText().toString());
                 editor.putString("end1",end1TextView.getText().toString());
                 editor.putString("end2",end2TextView.getText().toString());
                 editor.putBoolean("auto_clock",aSwitch.isChecked());
+
+                RadioButton rb = (RadioButton)findViewById(companyRadioGroup.getCheckedRadioButtonId());
+                int company_id = -1;
+                if (rb == null){
+                }else {
+                    if (rb.getText().toString().equals("总体部")) {
+                        company_id = 1;
+                    } else {
+                        company_id = 5;
+                    }
+                }
+                editor.putInt("company_id",company_id);
                 editor.commit();
 
                 Intent intent = new Intent(ConfigureActivity.this,LocationActivity.class);
@@ -156,9 +189,9 @@ public class ConfigureActivity extends AppCompatActivity {
         end1TextView = new TextView(context);
 
         begin1TextView.setText(sharedPreferences.getString("begin1","07:30"));
-        end1TextView.setText(sharedPreferences.getString("end1","09:00"));
+        end1TextView.setText(sharedPreferences.getString("end1","09:30"));
 
-        seekBar = new RangeSeekBar<Integer>(-3600000, 14400000, this);
+        seekBar = new RangeSeekBar<Integer>(-28800000, 14400000, this);
         seekBar.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener<Integer>() {
             @Override
             public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar,
@@ -197,11 +230,11 @@ public class ConfigureActivity extends AppCompatActivity {
 
         begin2TextView = new TextView(context);
         end2TextView = new TextView(context);
-        begin2TextView.setText(sharedPreferences.getString("begin2","16:30"));
-        end2TextView.setText(sharedPreferences.getString("end2","17:30"));
+        begin2TextView.setText(sharedPreferences.getString("begin2","17:30"));
+        end2TextView.setText(sharedPreferences.getString("end2","19:30"));
 
 
-        seekBar2 = new RangeSeekBar<Integer>(18000000, 36000000, this);
+        seekBar2 = new RangeSeekBar<Integer>(14400000, 57540000, this);
         seekBar2.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener<Integer>() {
             @Override
             public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar,
@@ -244,6 +277,12 @@ public class ConfigureActivity extends AppCompatActivity {
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 //            aSwitch.setChecked(true);
 //        }
+
+
+//      设置公司
+        RelativeLayout.LayoutParams companyRadioGroupParams = (RelativeLayout.LayoutParams) companyRadioGroup.getLayoutParams();
+        companyRadioGroupParams.setMargins(width*60/750,height*860/1300,width*60/750,0);
+        
 
 //        home键
         RelativeLayout.LayoutParams homeBtnParams = (RelativeLayout.LayoutParams)homeButton.getLayoutParams();
