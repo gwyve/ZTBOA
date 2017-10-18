@@ -138,7 +138,7 @@ public class BindActivity extends AppCompatActivity {
         final RelativeLayout.LayoutParams emailEditParams = (RelativeLayout.LayoutParams)emailEditText.getLayoutParams();
         emailEditParams.setMargins(width*63/750,height*550/1300,width*63/750,0);
         emailEditText.setPaddingRelative(width*20/750,0,0,0);
-        emailEditText.setText("请输入邮箱进行绑定");
+//        emailEditText.setText("请输入邮箱进行绑定");
         emailEditText.setBackground(getResources().getDrawable(R.drawable.bind_act_email));
 //        emailEditText.addTextChangedListener(new TextWatcher() {
 //            @Override
@@ -177,29 +177,29 @@ public class BindActivity extends AppCompatActivity {
         final RelativeLayout.LayoutParams phoneEditParams = (RelativeLayout.LayoutParams)phoneEditText.getLayoutParams();
         phoneEditParams.setMargins(width*64/750,height*680/1300,width*63/750,0);
         phoneEditText.setPaddingRelative(width*20/750,0,0,0);
-        phoneEditText.setText("请输入手机号进行绑定");
+//        phoneEditText.setText("请输入手机号进行绑定");
         phoneEditText.setBackground(getResources().getDrawable(R.drawable.bind_act_email));
-        phoneEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String s = phoneEditText.getText().toString();
-                if (s.equals("输入手机号进行绑定")||s.equals("请入手机号进行绑定")||s.equals("请输手机号进行绑定")
-                        || s.equals("请输入机号进行绑定")||s.equals("请输入手号进行绑定")||s.equals("请输入手机进行绑定")
-                        ||s.equals("请输入手机号行绑定")||s.equals("请输入手机号进绑定")||s.equals("请输入手机号进行定")
-                        ||s.equals("请输入手机号进行绑"))
-                    phoneEditText.setText("");
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
+//        phoneEditText.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                String s = phoneEditText.getText().toString();
+//                if (s.equals("输入手机号进行绑定")||s.equals("请入手机号进行绑定")||s.equals("请输手机号进行绑定")
+//                        || s.equals("请输入机号进行绑定")||s.equals("请输入手号进行绑定")||s.equals("请输入手机进行绑定")
+//                        ||s.equals("请输入手机号行绑定")||s.equals("请输入手机号进绑定")||s.equals("请输入手机号进行定")
+//                        ||s.equals("请输入手机号进行绑"))
+//                    phoneEditText.setText("");
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//
+//            }
+//        });
 //        phoneEditText.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {

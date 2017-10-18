@@ -49,11 +49,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bindActEmailEditText"
+        android:hint="请输入邮箱进行绑定"
         />
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bindActPhoneEditText"/>
+        android:id="@+id/bindActPhoneEditText"
+        android:hint="请输入手机号进行绑定 "/>
 
     <ProgressBar
         android:layout_width="match_parent"
