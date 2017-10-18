@@ -42,7 +42,14 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bindActEmailEditText"/>
+        android:visibility="invisible"
+        android:id="@+id/bindActDefault"
+        />
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bindActEmailEditText"
+        />
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

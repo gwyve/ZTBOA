@@ -145,6 +145,10 @@ public class LocationActivity extends AppCompatActivity {
         boolean confirmSetting = application.confirmSetting;
         boolean auto_clock = sharedPreferences.getBoolean("auto_clock",true);
         if (confirmSetting){
+            webView.loadUrl("http://iscas-ztb-weixin03.wisvision.cn/app/autoatt/record/"+sharedPreferences.getInt("company_id",1)+"/"+sharedPreferences.getInt("user_id",0));
+//            webView.loadUrl("http://www.baidu.com");
+            webView.onResume();
+
             Toast.makeText(LocationActivity.this,"设置成功",Toast.LENGTH_LONG).show();
 
             Intent serviceIntent = new Intent(LocationActivity.this,LocUpService.class);
@@ -234,7 +238,7 @@ public class LocationActivity extends AppCompatActivity {
 
 
 
-        webView.loadUrl("http://iscas-ztb-weixin03.wisvision.cn/app/autoatt/record/1/"+sharedPreferences.getInt("user_id",0));
+        webView.loadUrl("http://iscas-ztb-weixin03.wisvision.cn/app/autoatt/record/"+sharedPreferences.getInt("company_id",1)+"/"+sharedPreferences.getInt("user_id",0));
         webView.setWebViewClient(new WebViewClient(){
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {

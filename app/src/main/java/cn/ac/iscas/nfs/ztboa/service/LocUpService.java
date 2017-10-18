@@ -63,6 +63,11 @@ public class LocUpService extends Service {
 
     //    上传地址url
     private String locationUrl;
+
+//    公司id
+    private int companyID;
+
+
 //  时间段
     Date begin1;
     Date end1;
@@ -243,7 +248,8 @@ public class LocUpService extends Service {
         if (lastLocation!=null){
             JSONObject json = createjson(lastLocation.getLocType()+"",lastLocation.getTime(),userID,lastLocation.getLatitude()+"",lastLocation.getLongitude()+"",lastLocation.getRadius()+"");
 //            netUtil.sendRequestWithHttpClient(locationUrl,json,lastLocation.getLatitude(),lastLocation.getLongitude(),dataCallback);
-            byte[] bytes = Utils.locatonEncode((short) lastLocation.getLocType(),Utils.getTimeMillis(lastLocation.getTime()),userID,lastLocation.getLatitude(),lastLocation.getLongitude(),(short)lastLocation.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
+            byte[] bytes = Utils.locatonEncode((short) lastLocation.getLocType(),Utils.getTimeMillis(lastLocation.getTime()),userID,lastLocation.getLatitude(),lastLocation.getLongitude(),
+                    (short)lastLocation.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this),(short)companyID);
             netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
                     bytes,lastLocation.getLatitude(),lastLocation.getLongitude(),dataCallback);
         }
@@ -286,7 +292,8 @@ public class LocUpService extends Service {
                                     JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
 //                                    netUtil.sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude(),dataCallback);
 
-                                    byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),(short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
+                                    byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),
+                                            (short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this),(short)companyID);
 //                                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
                                     netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
                                             bytes,location.getLatitude(),location.getLongitude(),dataCallback);
@@ -302,7 +309,8 @@ public class LocUpService extends Service {
                                 if (null==lastLocation || !lastLocation.getTime().equals(location.getTime())){
                                     JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
 //                                    netUtil.sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude(),dataCallback);
-                                    byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),(short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
+                                    byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),
+                                            (short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this),(short)companyID);
 //                                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
                                     netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
                                             bytes,location.getLatitude(),location.getLongitude(),dataCallback);
@@ -319,7 +327,8 @@ public class LocUpService extends Service {
                         if (null==lastLocation || !lastLocation.getTime().equals(location.getTime())){
                             JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
 //                            netUtil.sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude(),dataCallback);
-                            byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),(short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
+                            byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),
+                                    (short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this),(short)companyID);
 //                            netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
                             netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
                                     bytes,location.getLatitude(),location.getLongitude(),dataCallback);
@@ -336,7 +345,8 @@ public class LocUpService extends Service {
                 }else if (location.getLocType() == BDLocation.TypeServerError){
                     JSONObject json = createjson(location.getLocType()+"",location.getTime(),userID,location.getLatitude()+"",location.getLongitude()+"",location.getRadius()+"");
 //                    netUtil.sendRequestWithHttpClient(locationUrl,json,location.getLatitude(),location.getLongitude(),dataCallback);
-                    byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),(short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this));
+                    byte[] bytes = Utils.locatonEncode((short) location.getLocType(),Utils.getTimeMillis(location.getTime()),userID,location.getLatitude(),location.getLongitude(),
+                            (short)location.getRadius(),Utils.getSysTime(),Utils.getAPNType(LocUpService.this),(short)companyID);
 //                    netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,bytes,location.getLatitude(),location.getLongitude(),dataCallback);
                     netUtil.sendRequestWithHttpClient42Bytes(locationUrl,json,Double.parseDouble(centerLatitude),Double.parseDouble(centerLongitude),
                             bytes,location.getLatitude(),location.getLongitude(),dataCallback);
@@ -494,6 +504,7 @@ public class LocUpService extends Service {
         centerLatitude = sharedPreferences.getString("work_latitude","39.985749");
         stopInterval = sharedPreferences.getInt("stop_interval",5);
         locationUrl = sharedPreferences.getString("location_url","http://iscas-ztb-weixin03.wisvision.cn/app/upload/zippos");
+        companyID = sharedPreferences.getInt("company_id",1);
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
         try {
             begin1 = dateFormat.parse(sharedPreferences.getString("begin1","07:30"));

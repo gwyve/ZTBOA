@@ -157,7 +157,7 @@ public class Utils {
         return byteRet;
     }
 
-    public static byte[] locatonEncode(short locType, long locTime,int userid,double latitude,double longitude,short radius,
+    public static byte[] locatoncode(short locType, long locTime,int userid,double latitude,double longitude,short radius,
                                 long phonetime,short netType){
         byte[] bytes = new byte[42];
         int count = 0;
@@ -200,6 +200,61 @@ public class Utils {
         byte[] nettypeBytes = Utils.short2Byte(netType);
         for (int i = 0; i <2; i++) {
             bytes[count+i] = nettypeBytes[i];
+        }
+
+        return bytes;
+
+    }
+
+    public static byte[] locatonEncode(short locType, long locTime,int userid,double latitude,double longitude,short radius,
+                                       long phonetime,short netType,short companyid){
+        byte[] bytes = new byte[44];
+        int count = 0;
+
+        byte[] locBytes = Utils.short2Byte(locType);
+        for (int i = 0; i < 2; i++) {
+            bytes[count] = locBytes[i];
+            count++;
+        }
+        byte[] timtBytes = Utils.long2Bytes(locTime);
+        for (int i = 0; i < 8; i++) {
+            bytes[count] = timtBytes[i];
+            count++;
+        }
+        byte[] useridBytes = Utils.int2Bytes(userid);
+        for (int i = 0; i < 4; i++) {
+            bytes[count] = useridBytes[i];
+            count++;
+        }
+        byte[] latitudeBytes = Utils.double2Bytes(latitude);
+        for (int i = 0; i < 8; i++) {
+            bytes[count] = latitudeBytes[i];
+            count++;
+        }
+        byte[] longtitudeBytes = Utils.double2Bytes(longitude);
+        for (int i = 0; i < 8; i++) {
+            bytes[count] = longtitudeBytes[i];
+            count++;
+        }
+        byte[] radiusBytes = Utils.short2Byte(radius);
+        for (int i = 0; i < 2; i++) {
+            bytes[count] = radiusBytes[i];
+            count++;
+        }
+        byte[] phonetimeBytes = Utils.long2Bytes(phonetime);
+        for (int i = 0; i < 8; i++) {
+            bytes[count] = phonetimeBytes[i];
+            count++;
+        }
+        byte[] nettypeBytes = Utils.short2Byte(netType);
+        for (int i = 0; i <2; i++) {
+            bytes[count] = nettypeBytes[i];
+            count++;
+        }
+        byte[] companyidBytes = Utils.short2Byte(companyid);
+        for (int i = 0; i <2; i++) {
+            bytes[count] = companyidBytes[i];
+            count++;
         }
 
         return bytes;

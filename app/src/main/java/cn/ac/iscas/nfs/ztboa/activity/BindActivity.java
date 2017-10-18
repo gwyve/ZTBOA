@@ -9,6 +9,8 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,9 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+import com.tencent.android.tpush.XGIOperateCallback;
+import com.tencent.android.tpush.XGPushManager;
+import com.tencent.android.tpush.stat.a;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,6 +96,9 @@ public class BindActivity extends AppCompatActivity {
 
         progressBar = (ProgressBar)findViewById(R.id.bindActProgressBar);
 
+        EditText defaultEditTest = (EditText)findViewById(R.id.bindActDefault);
+        defaultEditTest.requestFocus();
+
         initView(BindActivity.this);
 
         imageButton.setOnClickListener(new View.OnClickListener() {
@@ -122,22 +130,46 @@ public class BindActivity extends AppCompatActivity {
         backImage.getLayoutParams().height = height;
         Picasso.with(context).load(R.drawable.bind_act_background).fit().into(backImage);
 
+
 //      email匡
         emailEditText.setPadding(0,0,0,0);
         emailEditText.getLayoutParams().height = height*100/1300;
         emailEditText.getLayoutParams().width = width*625/750;
-        RelativeLayout.LayoutParams emailEditParams = (RelativeLayout.LayoutParams)emailEditText.getLayoutParams();
+        final RelativeLayout.LayoutParams emailEditParams = (RelativeLayout.LayoutParams)emailEditText.getLayoutParams();
         emailEditParams.setMargins(width*63/750,height*550/1300,width*63/750,0);
         emailEditText.setPaddingRelative(width*20/750,0,0,0);
         emailEditText.setText("请输入邮箱进行绑定");
         emailEditText.setBackground(getResources().getDrawable(R.drawable.bind_act_email));
-        emailEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (emailEditText.getText().toString().equals("请输入邮箱进行绑定"))
-                    emailEditText.setText("");
-            }
-        });
+//        emailEditText.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                String s = emailEditText.getText().toString();
+//                if (s.equals("输入邮箱进行绑定")||s.equals("请入邮箱进行绑定")||s.equals("请输邮箱进行绑定")
+//                        || s.equals("请输入箱进行绑定")||s.equals("请输入邮进行绑定")||s.equals("请输入邮箱行绑定")
+//                        ||s.equals("请输入邮箱进绑定")||s.equals("请输入邮箱进行定")||s.equals("请输入邮箱进行绑"))
+//                    emailEditText.setText("");
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//
+//            }
+//        });
+//        emailEditText.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (emailEditText.getText().toString().equals("请输入邮箱进行绑定"))
+//                    emailEditText.setText("");
+//            }
+//        });
+
+
+
 //      phone的输入框
         phoneEditText.setPadding(0,0,0,0);
         phoneEditText.getLayoutParams().height = height*100/1300;
@@ -147,13 +179,35 @@ public class BindActivity extends AppCompatActivity {
         phoneEditText.setPaddingRelative(width*20/750,0,0,0);
         phoneEditText.setText("请输入手机号进行绑定");
         phoneEditText.setBackground(getResources().getDrawable(R.drawable.bind_act_email));
-        phoneEditText.setOnClickListener(new View.OnClickListener() {
+        phoneEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View view) {
-                if (phoneEditText.getText().toString().equals("请输入手机号进行绑定"))
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String s = phoneEditText.getText().toString();
+                if (s.equals("输入手机号进行绑定")||s.equals("请入手机号进行绑定")||s.equals("请输手机号进行绑定")
+                        || s.equals("请输入机号进行绑定")||s.equals("请输入手号进行绑定")||s.equals("请输入手机进行绑定")
+                        ||s.equals("请输入手机号行绑定")||s.equals("请输入手机号进绑定")||s.equals("请输入手机号进行定")
+                        ||s.equals("请输入手机号进行绑"))
                     phoneEditText.setText("");
             }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
         });
+//        phoneEditText.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (phoneEditText.getText().toString().equals("请输入手机号进行绑定"))
+//                    phoneEditText.setText("");
+//            }
+//        });
+
 
 //      公司选择radio
         RelativeLayout.LayoutParams companyRadioGroupParams = (RelativeLayout.LayoutParams) companyRadioGroup.getLayoutParams();
@@ -230,9 +284,10 @@ public class BindActivity extends AppCompatActivity {
 //                            editor.putString("user_name",resJson.getString("name"));
                             editor.commit();
 
-                            Intent intent = new Intent(BindActivity.this,LocationActivity.class);
-                            startActivity(intent);
-                            BindActivity.this.finish();
+                            registerPush(BindActivity.this);
+//                            Intent intent = new Intent(BindActivity.this,LocationActivity.class);
+//                            startActivity(intent);
+//                            BindActivity.this.finish();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -245,4 +300,49 @@ public class BindActivity extends AppCompatActivity {
         }
     }
 
+    private void registerPush(final Context context){
+        XGPushManager.registerPush(context, new XGIOperateCallback() {
+            @Override
+            public void onSuccess(Object o, int i) {
+//                Log.e("111",o.toString());
+//                Toast.makeText(LoginActivity.this,o.toString(),Toast.LENGTH_LONG);
+                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                OkHttpClient client = new OkHttpClient();
+                final JSONObject json = new JSONObject();
+                try{
+                    json.put("userId",sharedPreferences.getInt("user_id",-1));
+                    json.put("xinge_token",o.toString());
+                    Log.e("111",""+o.toString());
+                    RequestBody body = RequestBody.create(JSON,json.toString());
+                    Request request = new Request.Builder()
+//                    .url("http:192.168.1.100:8081/userid.php")
+//                    .url("http://iscas-ztb-weixin03.wisvision.cn/app/info")
+                            .url("http://iscas-ztb-weixin03.wisvision.cn/app/push/settoken")
+                            .post(body).build();
+                    Call call = client.newCall(request);
+                    call.enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Toast.makeText(context,"信鸽错误",Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            Intent intent = new Intent(BindActivity.this,LocationActivity.class);
+                            startActivity(intent);
+                            BindActivity.this.finish();
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onFail(Object o, int i, String s) {
+                Toast.makeText(context,"信鸽错误",Toast.LENGTH_LONG);
+            }
+        });
+    }
 }

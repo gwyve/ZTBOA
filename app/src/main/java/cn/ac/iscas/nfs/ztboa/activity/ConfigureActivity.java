@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -27,6 +28,10 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +39,13 @@ import java.util.Date;
 import cn.ac.iscas.nfs.ztboa.R;
 import cn.ac.iscas.nfs.ztboa.ZTBApplication;
 import cn.ac.iscas.nfs.ztboa.widget.RangeSeekBar;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class ConfigureActivity extends AppCompatActivity {
@@ -51,6 +63,8 @@ public class ConfigureActivity extends AppCompatActivity {
     private RadioButton companyRadioButton1;
     private RadioButton companyRadioBUtton5;
 
+//    进度条
+    private ProgressBar progressBar;
 
 //    两个滑动控件
     RangeSeekBar<Integer> seekBar;
@@ -102,6 +116,8 @@ public class ConfigureActivity extends AppCompatActivity {
         companyRadioButton1 = (RadioButton)findViewById(R.id.configureActCompany_1);
         companyRadioBUtton5 = (RadioButton)findViewById(R.id.configureActCompany_5);
 
+        progressBar = (ProgressBar)findViewById(R.id.configActProgressBar);
+
         sharedPreferences = getSharedPreferences("cn.ac.iscas.nfs.ztboa",Context.MODE_WORLD_WRITEABLE);
         editor = sharedPreferences.edit();
 
@@ -112,6 +128,7 @@ public class ConfigureActivity extends AppCompatActivity {
     public void onStart(){
         super.onStart();
         aSwitch.setChecked(sharedPreferences.getBoolean("auto_clock",true));
+        progressBar.setVisibility(View.INVISIBLE);
 //        aSwitch.setChecked(true);
         try {
             seekBar.setSelectedMinValue((int)dateFormat.parse(sharedPreferences.getString("begin1","07:30")).getTime());
@@ -143,7 +160,7 @@ public class ConfigureActivity extends AppCompatActivity {
 
 
 //        最下面的按钮位置
-        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)imageButton.getLayoutParams();
+        final RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)imageButton.getLayoutParams();
         layoutParams.setMargins(width*62/750,height*995/1300,0,0);
         imageButton.setPadding(0,0,0,0);
         imageButton.getLayoutParams().height = height * 100/1300;
@@ -154,33 +171,101 @@ public class ConfigureActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 application.putActivity("ConfigureActivity",ConfigureActivity.this);
-                application.confirmSetting = true;
+
 
 //                公司信息
 
 
-                editor.putString("begin1",begin1TextView.getText().toString());
-                editor.putString("begin2",begin2TextView.getText().toString());
-                editor.putString("end1",end1TextView.getText().toString());
-                editor.putString("end2",end2TextView.getText().toString());
-                editor.putBoolean("auto_clock",aSwitch.isChecked());
+//                editor.putString("begin1",begin1TextView.getText().toString());
+//                editor.putString("begin2",begin2TextView.getText().toString());
+//                editor.putString("end1",end1TextView.getText().toString());
+//                editor.putString("end2",end2TextView.getText().toString());
+//                editor.putBoolean("auto_clock",aSwitch.isChecked());
+//
+//                RadioButton rb = (RadioButton)findViewById(companyRadioGroup.getCheckedRadioButtonId());
+//                int company_id = -1;
+//                if (rb == null){
+//                }else {
+//                    if (rb.getText().toString().equals("总体部")) {
+//                        company_id = 1;
+//                    } else {
+//                        company_id = 5;
+//                    }
+//                }
+//                editor.putInt("company_id",company_id);
+//                editor.commit();
 
-                RadioButton rb = (RadioButton)findViewById(companyRadioGroup.getCheckedRadioButtonId());
-                int company_id = -1;
-                if (rb == null){
-                }else {
-                    if (rb.getText().toString().equals("总体部")) {
-                        company_id = 1;
-                    } else {
-                        company_id = 5;
-                    }
+//                Intent intent = new Intent(ConfigureActivity.this,LocationActivity.class);
+//                startActivity(intent);
+//                overridePendingTransition(R.anim.location_act_right_in,R.anim.configure_act_left_out);
+
+                progressBar.setVisibility(View.VISIBLE);
+                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                OkHttpClient client = new OkHttpClient();
+                final JSONObject json = new JSONObject();
+                try {
+                    json.put("userid",sharedPreferences.getInt("user_id",-1));
+                    json.put("status",aSwitch.isChecked());
+                    json.put("arrive_begin_time",begin1TextView.getText().toString());
+                    json.put("leave_begin_time",begin2TextView.getText().toString());
+                    json.put("arrive_end_time",end2TextView.getText().toString());
+                    json.put("leave_end_time",end2TextView.getText().toString());
+
+                    RequestBody body = RequestBody.create(JSON,json.toString());
+                    Request request = new Request.Builder()
+//                    .url("http:192.168.1.100:8081/userid.php")
+//                    .url("http://iscas-ztb-weixin03.wisvision.cn/app/info")
+                            .url("http://iscas-ztb-weixin03.wisvision.cn/app/autoatt/set/config")
+                            .post(body).build();
+                    Call call = client.newCall(request);
+                    call.enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            ConfigureActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(ConfigureActivity.this,"网络不好",Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            application.confirmSetting = true;
+//                            progressBar.setVisibility(View.INVISIBLE);
+                            editor.putString("begin1",begin1TextView.getText().toString());
+                            editor.putString("begin2",begin2TextView.getText().toString());
+                            editor.putString("end1",end1TextView.getText().toString());
+                            editor.putString("end2",end2TextView.getText().toString());
+                            editor.putBoolean("auto_clock",aSwitch.isChecked());
+
+                            RadioButton rb = (RadioButton)findViewById(companyRadioGroup.getCheckedRadioButtonId());
+                            int company_id = -1;
+                            if (rb == null){
+                            }else {
+                                if (rb.getText().toString().equals("总体部")) {
+                                    company_id = 1;
+                                } else {
+                                    company_id = 5;
+                                }
+                            }
+                            editor.putInt("company_id",company_id);
+                            editor.commit();
+                            Intent intent = new Intent(ConfigureActivity.this,LocationActivity.class);
+                            startActivity(intent);
+                            overridePendingTransition(R.anim.location_act_right_in,R.anim.configure_act_left_out);
+
+
+                        }
+                    });
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                editor.putInt("company_id",company_id);
-                editor.commit();
 
-                Intent intent = new Intent(ConfigureActivity.this,LocationActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.location_act_right_in,R.anim.configure_act_left_out);
             }
         });
 
