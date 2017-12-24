@@ -153,26 +153,26 @@ public class SplashActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("cn.ac.iscas.nfs.ztboa",Context.MODE_WORLD_WRITEABLE);
         editor = sharedPreferences.edit();
 
-        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            String packageName = getApplication().getPackageName();
-            boolean isIgnoring = ((PowerManager) getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(packageName);
-            Log.e("111","eeeeeeeeeeeeeeeee");
-            Log.e("111",packageName);
-            if (!isIgnoring) {
-                Intent intent = new Intent(
-                        Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                intent.setData(Uri.parse("package:" + packageName));
-                try {
-                    startActivity(intent);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-        getPersimmions();
-        if (hasPermission()){
+//        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+//            String packageName = getApplication().getPackageName();
+//            boolean isIgnoring = ((PowerManager) getSystemService(Context.POWER_SERVICE)).isIgnoringBatteryOptimizations(packageName);
+//            Log.e("111","eeeeeeeeeeeeeeeee");
+//            Log.e("111",packageName);
+//            if (!isIgnoring) {
+//                Intent intent = new Intent(
+//                        Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+//                intent.setData(Uri.parse("package:" + packageName));
+//                try {
+//                    startActivity(intent);
+//                } catch (Exception ex) {
+//                    ex.printStackTrace();
+//                }
+//            }
+//        }
+//        getPersimmions();
+//        if (hasPermission()){
             goNext();
-        }
+//        }
     }
 
     private void checkVersion(){
@@ -254,7 +254,12 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void goNext(){
-        checkVersion();
+//        checkVersion();
+        Intent intent = new Intent(SplashActivity.this,BindActivity.class);
+        startActivity(intent);
+        SplashActivity.this.finish();
+
+
 
 //        setConfig();
 //        new Handler().postDelayed(new Runnable() {

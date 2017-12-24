@@ -44,12 +44,12 @@ dependencies {
     //信鸽稳定版
     //wup包 如果和其他腾讯系的sdk 发生wup冲突，这个依赖可不添加
     //mid包
-    
+
 
 //    维信包
-    
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    
+
 //    picasso
     compile 'com.squareup.picasso:picasso:2.4.0'
 //   okhttp

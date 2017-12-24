@@ -13,7 +13,7 @@ import com.tencent.android.tpush.XGPushRegisterResult;
 import com.tencent.android.tpush.XGPushShowedResult;
 import com.tencent.android.tpush.XGPushTextMessage;
 
-import cn.ac.iscas.nfs.ztboa.service.LocUpService;
+//import cn.ac.iscas.nfs.ztboa.service.LocUpService;
 
 /**
  * Created by VE on 2017/9/16.

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import cn.ac.iscas.nfs.ztboa.R;
-import cn.ac.iscas.nfs.ztboa.service.LocUpService;
+//import cn.ac.iscas.nfs.ztboa.service.LocUpService;
 import cn.ac.iscas.nfs.ztboa.ZTBApplication;
 
 /**
@@ -31,10 +31,10 @@ public class NetUtil {
     public NetUtil(ZTBApplication app){
         this.app = app;
     }
-    public void longShowDetail(String str, LocUpService.DataCallback dataCallback){
+//    public void longShowDetail(String str, LocUpService.DataCallback dataCallback){
 //        Toast.makeText(app,str,Toast.LENGTH_LONG).show();
-        dataCallback.dataChanged(str);
-    }
+//        dataCallback.dataChanged(str);
+//    }
     public void shortShowDetail(String str){
         Toast.makeText(app,str,Toast.LENGTH_SHORT).show();
     }
@@ -45,7 +45,7 @@ public class NetUtil {
 
 
     public void sendRequestWithHttpClient(final String url,
-                                           final JSONObject json, final double latitude, final double longitude, final LocUpService.DataCallback dataCallback){
+                                           final JSONObject json, final double latitude, final double longitude){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -62,21 +62,21 @@ public class NetUtil {
                     HttpResponse response = httpClient.execute(httpPost);
                     if (response.getStatusLine().getStatusCode() == 200) {
                         app.distance = getDistance(latitude,longitude);
-                        dataCallback.dataChanged("成功 "+json.toString());
+//                        dataCallback.dataChanged("成功 "+json.toString());
                     } else {
-                        longShowDetail("定位上传网络错误,http错误代码：" +response.getStatusLine().getStatusCode(),dataCallback);
+//                        longShowDetail("定位上传网络错误,http错误代码：" +response.getStatusLine().getStatusCode(),dataCallback);
                     }
                 } catch (UnsupportedEncodingException e) {
-                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
                     e.printStackTrace();
                 } catch (ClientProtocolException e) {
-                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
                     e.printStackTrace();
                 } catch (IOException e) {
-                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
                     e.printStackTrace();
                 } catch (Exception e){
-                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
                     e.printStackTrace();
                 } finally {
                     httpClient.getConnectionManager().shutdown();
@@ -89,7 +89,7 @@ public class NetUtil {
 
 
     public void sendRequestWithHttpClient42Bytes(final String url, final JSONObject json, final double workLatitude, final double workLongitude,
-                                                 final byte[] context, final double centerLatitude, final double centerLongitude, final LocUpService.DataCallback dataCallback){
+                                                 final byte[] context, final double centerLatitude, final double centerLongitude){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -107,23 +107,68 @@ public class NetUtil {
                     HttpResponse response = httpClient.execute(httpPost);
                     if (response.getStatusLine().getStatusCode() == 200) {
                         app.distance = getDistance(workLatitude,workLongitude,centerLatitude,centerLongitude);
-                        dataCallback.dataChanged("成功 "+json.toString());
+//                        dataCallback.dataChanged("成功 "+json.toString());
                         Log.e("成功",""+json.toString());
                     } else {
-                        longShowDetail("定位上传网络错误,http错误代码：" +response.getStatusLine().getStatusCode(),dataCallback);
+//                        longShowDetail("定位上传网络错误,http错误代码：" +response.getStatusLine().getStatusCode(),dataCallback);
                     }
                     Log.e("111","rrrrrrrrrrrrrrrr"+response.getStatusLine().getStatusCode());
                 } catch (UnsupportedEncodingException e) {
-                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
                     e.printStackTrace();
                 } catch (ClientProtocolException e) {
-                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
                     e.printStackTrace();
                 } catch (IOException e) {
-                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
                     e.printStackTrace();
                 } catch (Exception e){
-                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+                    e.printStackTrace();
+                } finally {
+                    httpClient.getConnectionManager().shutdown();
+                }
+
+            }
+        }).start();
+    }
+
+    public void sendRequestWithHttpClient42Bytes(final String url, final JSONObject json,final byte[] context){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpPost httpPost = new HttpPost(url);
+                try {
+                    httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 3000);
+                    httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 3000);
+
+                    ByteArrayEntity entity = new ByteArrayEntity(context);
+//                    StringEntity entity = new StringEntity(json.toString(), "utf-8");
+                    entity.setContentEncoding("");
+                    entity.setContentType("");
+                    httpPost.setEntity(entity);
+                    HttpResponse response = httpClient.execute(httpPost);
+                    if (response.getStatusLine().getStatusCode() == 200) {
+//                        app.distance = getDistance(workLatitude,workLongitude,centerLatitude,centerLongitude);
+//                        dataCallback.dataChanged("成功 "+json.toString());
+                        Log.e("成功",""+json.toString());
+                    } else {
+                        Log.e("111","定位上传网络错误,http错误代码：" +response.getStatusLine().getStatusCode());
+//                        longShowDetail("定位上传网络错误,http错误代码：" +response.getStatusLine().getStatusCode(),dataCallback);
+                    }
+                    Log.e("111","rrrrrrrrrrrrrrrr"+response.getStatusLine().getStatusCode());
+                } catch (UnsupportedEncodingException e) {
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+                    e.printStackTrace();
+                } catch (ClientProtocolException e) {
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+                    e.printStackTrace();
+                } catch (IOException e) {
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
+                    e.printStackTrace();
+                } catch (Exception e){
+//                    longShowDetail("上传网络异常："+e.toString(),dataCallback);
                     e.printStackTrace();
                 } finally {
                     httpClient.getConnectionManager().shutdown();

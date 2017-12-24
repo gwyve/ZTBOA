@@ -32,7 +32,7 @@ import com.squareup.picasso.Picasso;
 
 import cn.ac.iscas.nfs.ztboa.R;
 import cn.ac.iscas.nfs.ztboa.ZTBApplication;
-import cn.ac.iscas.nfs.ztboa.service.LocUpService;
+//import cn.ac.iscas.nfs.ztboa.service.LocUpService;
 
 public class LocationActivity extends AppCompatActivity {
 
@@ -43,10 +43,10 @@ public class LocationActivity extends AppCompatActivity {
 
 
 //  服务绑定
-    LocUpServiceConn locUpServiceConn;
-    LocUpService.LocUpBinder binder = null;
+//    LocUpServiceConn locUpServiceConn;
+//    LocUpService.LocUpBinder binder = null;
 
-    Intent serviceIntent;
+//    Intent serviceIntent;
 
 //    Intent alarmIntent;
 //    AlarmManager alarmManager;
@@ -59,6 +59,8 @@ public class LocationActivity extends AppCompatActivity {
     private ViewGroup rootView;
     private ImageButton settingButton;
     private ImageView background;
+
+    private ImageButton fakeButton;
 
 
     private WebView webView;
@@ -87,17 +89,17 @@ public class LocationActivity extends AppCompatActivity {
         webView = (WebView)findViewById(R.id.locationActWebView);
 
 
-        locUpServiceConn = new LocUpServiceConn();
-        serviceIntent = new Intent(LocationActivity.this,LocUpService.class);
+//        locUpServiceConn = new LocUpServiceConn();
+//        serviceIntent = new Intent(LocationActivity.this,LocUpService.class);
         stopBtn.setEnabled(false);
-        final Intent finalServiceIntent = serviceIntent;
+//        final Intent finalServiceIntent = serviceIntent;
 
         sharedPreferences = getSharedPreferences("cn.ac.iscas.nfs.ztboa",Context.MODE_WORLD_WRITEABLE);
         editor = sharedPreferences.edit();
 
         if (sharedPreferences.getBoolean("auto_clock",true)){
-            startService(finalServiceIntent);
-            LocationActivity.this.bindService(finalServiceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
+//            startService(finalServiceIntent);
+//            LocationActivity.this.bindService(finalServiceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
         }
 //        startBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -136,6 +138,7 @@ public class LocationActivity extends AppCompatActivity {
         background = (ImageView)findViewById(R.id.locationActBackground);
         settingButton = (ImageButton)findViewById(R.id.locationActSettingBtn);
 
+        fakeButton = (ImageButton)findViewById(R.id.locationActFakeBtn);
         initView(LocationActivity.this);
     }
 
@@ -151,15 +154,16 @@ public class LocationActivity extends AppCompatActivity {
 
             Toast.makeText(LocationActivity.this,"设置成功",Toast.LENGTH_LONG).show();
 
-            Intent serviceIntent = new Intent(LocationActivity.this,LocUpService.class);
-            stopService(serviceIntent);
+//            Intent serviceIntent = new Intent(LocationActivity.this,LocUpService.class);
+//            stopService(serviceIntent);
 //            if (binder != null){
 //                LocationActivity.this.unbindService(locUpServiceConn);
 //            }
 
             if (auto_clock){
-                startService(serviceIntent);
-                LocationActivity.this.bindService(serviceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
+                Log.e("111","开启自动打开，但是没有作用");
+//                startService(serviceIntent);
+//                LocationActivity.this.bindService(serviceIntent,locUpServiceConn, Context.BIND_ABOVE_CLIENT);
             }
         }
         application.confirmSetting = false;
@@ -167,41 +171,41 @@ public class LocationActivity extends AppCompatActivity {
 
 
 
-    class LocUpServiceConn implements ServiceConnection{
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            binder = (LocUpService.LocUpBinder) service;
-            binder.getService().setDataCallback(new LocUpService.DataCallback() {
-                @Override
-                public void dataChanged(String str) {
-                    Message msg = new Message();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("str", str);
-                    msg.setData(bundle);
-                    //发送通知
-                    handler.sendMessage(msg);
-                }
-            });
-        }
-
-        Handler handler = new Handler() {
-            public void handleMessage(android.os.Message msg) {
-            //在handler中更新UI
-                if (textView.getText().toString().split("\n").length>200){
-                    textView.setText(msg.getData().getString("str"));
-                }else {
-                    textView.setText(msg.getData().getString("str")+"\n\n"+textView.getText().toString());
-                }
-            };
-        };
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            binder = null;
-        }
-
-    }
+//    class LocUpServiceConn implements ServiceConnection{
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            binder = (LocUpService.LocUpBinder) service;
+//            binder.getService().setDataCallback(new LocUpService.DataCallback() {
+//                @Override
+//                public void dataChanged(String str) {
+//                    Message msg = new Message();
+//                    Bundle bundle = new Bundle();
+//                    bundle.putString("str", str);
+//                    msg.setData(bundle);
+//                    //发送通知
+//                    handler.sendMessage(msg);
+//                }
+//            });
+//        }
+//
+//        Handler handler = new Handler() {
+//            public void handleMessage(android.os.Message msg) {
+//            //在handler中更新UI
+//                if (textView.getText().toString().split("\n").length>200){
+//                    textView.setText(msg.getData().getString("str"));
+//                }else {
+//                    textView.setText(msg.getData().getString("str")+"\n\n"+textView.getText().toString());
+//                }
+//            };
+//        };
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            binder = null;
+//        }
+//
+//    }
 
     private void initView(Context context){
 //        背景设置
@@ -222,6 +226,21 @@ public class LocationActivity extends AppCompatActivity {
                 Intent intent = new Intent(LocationActivity.this,ConfigureActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.configure_act_right_in,R.anim.location_act_left_out);
+            }
+        });
+
+//        设置fake键
+        RelativeLayout.LayoutParams fakeBtnParams = (RelativeLayout.LayoutParams)fakeButton.getLayoutParams();
+        fakeButton.setPadding(0,0,0,0);
+        fakeButton.getLayoutParams().width = width*65/750;
+        fakeButton.getLayoutParams().height = height*65/1300;
+        fakeBtnParams.setMargins(width*55/750,height*10/1300,0,0);
+        Picasso.with(context).load(R.drawable.location_act_setting_btn).fit().into(fakeButton);
+        fakeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LocationActivity.this,FakeActivity.class);
+                startActivity(intent);
             }
         });
 
